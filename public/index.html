@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Question for You ✨</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #0d1b2a;
+      --deep:   #111827;
+      --blush:  #f2a7b3;
+      --gold:   #e8c97e;
+      --white:  #f9f5f0;
+      --muted:  #8a9ab5;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Lato', sans-serif;
+      font-weight: 300;
+      overflow: hidden;
+    }
+
+    /* ── Stars ── */
+    #stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: #fff;
+      animation: twinkle var(--d, 3s) ease-in-out infinite alternate;
+      opacity: 0;
+    }
+    @keyframes twinkle {
+      from { opacity: 0.1; transform: scale(0.8); }
+      to   { opacity: 0.9; transform: scale(1.2); }
+    }
+
+    /* ── Pages ── */
+    .page {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      padding: 2rem;
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .page.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(24px);
+    }
+
+    /* ── Typography ── */
+    .eyebrow {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 400;
+      line-height: 1.15;
+      text-align: center;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+    h1 em {
+      font-style: italic;
+      color: var(--blush);
+    }
+    .sub {
+      font-size: 1rem;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 3rem;
+      font-style: italic;
+    }
+
+    /* ── Buttons ── */
+    .btn-row {
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn {
+      cursor: pointer;
+      border: none;
+      font-family: 'Lato', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      border-radius: 2px;
+      padding: 0.85rem 2.4rem;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn-yes {
+      background: var(--blush);
+      color: var(--navy);
+      font-weight: 400;
+    }
+    .btn-yes:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 28px rgba(242,167,179,0.4);
+    }
+    .btn-no {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--muted);
+      position: fixed;   /* allows free movement */
+      transition: none;  /* no CSS transitions so JS can reposition instantly */
+      font-weight: 300;
+    }
+
+    /* ── Heart divider ── */
+    .heart-line {
+      margin: 1.5rem 0 2rem;
+      font-size: 1.1rem;
+      color: var(--blush);
+      letter-spacing: 0.5rem;
+    }
+
+    /* ── Page 2: date picker ── */
+    #page2 h1 { font-size: clamp(1.8rem, 5vw, 3rem); margin-bottom: 0.4rem; }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
+      width: 100%;
+      max-width: 360px;
+    }
+    label {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    input[type="date"], input[type="time"] {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 2px;
+      color: var(--white);
+      font-family: 'Lato', sans-serif;
+      font-size: 1rem;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+      color-scheme: dark;
+    }
+    input:focus { border-color: var(--blush); }
+
+    .btn-confirm {
+      background: var(--gold);
+      color: var(--navy);
+      margin-top: 0.5rem;
+      width: 100%;
+      max-width: 360px;
+      font-weight: 400;
+    }
+    .btn-confirm:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 28px rgba(232,201,126,0.35);
+    }
+
+    /* ── Page 3: confirmed ── */
+    #page3 .big-emoji { font-size: 4rem; margin-bottom: 1rem; }
+    #page3 h1 { margin-bottom: 1rem; }
+    #page3 .detail {
+      font-size: 1rem;
+      color: var(--muted);
+      text-align: center;
+      max-width: 340px;
+      line-height: 1.7;
+    }
+    #page3 .detail strong { color: var(--blush); font-style: normal; }
+
+    /* ── Status message ── */
+    #status {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      min-height: 1.2rem;
+      text-align: center;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .star { animation: none; opacity: 0.4; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<!-- PAGE 1 -->
+<div class="page" id="page1">
+  <p class="eyebrow">A little question</p>
+  <h1>Will you go on a<br /><em>date with me?</em></h1>
+  <div class="heart-line">✦ ♡ ✦</div>
+  <p class="sub">Think carefully. (Or don't. Say yes.)</p>
+  <div class="btn-row">
+    <button class="btn btn-yes" id="btnYes">Yes, of course ♡</button>
+  </div>
+  <button class="btn btn-no" id="btnNo">No</button>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page hidden" id="page2">
+  <p class="eyebrow">Wonderful — let's make it official</p>
+  <h1>Pick our <em>date</em></h1>
+  <div class="heart-line">✦ ♡ ✦</div>
+  <div class="form-group">
+    <label for="dateInput">The day</label>
+    <input type="date" id="dateInput" />
+  </div>
+  <div class="form-group">
+    <label for="timeInput">The time</label>
+    <input type="time" id="timeInput" />
+  </div>
+  <button class="btn btn-confirm" id="btnConfirm">Confirm our date ♡</button>
+  <p id="status"></p>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page hidden" id="page3">
+  <div class="big-emoji">🌹</div>
+  <p class="eyebrow">It's happening</p>
+  <h1>I <em>cannot wait</em></h1>
+  <div class="heart-line">✦ ♡ ✦</div>
+  <p class="detail">
+    Our date is confirmed for<br />
+    <strong id="confirmDisplay"></strong><br /><br />
+    I'll be counting down every single minute. ♡
+  </p>
+</div>
+
+<script>
+  /* ── Stars ── */
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    stars = Array.from({length: 160}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.4 + 0.3,
+      o: Math.random(),
+      speed: Math.random() * 0.008 + 0.003,
+      dir: Math.random() < 0.5 ? 1 : -1,
+      phase: Math.random() * Math.PI * 2,
+    }));
+  }
+  function drawStars(t) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const s of stars) {
+      const opacity = 0.15 + 0.75 * (0.5 + 0.5 * Math.sin(s.phase + t * s.speed * s.dir));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(drawStars);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  requestAnimationFrame(drawStars);
+
+  /* ── Runaway No button ── */
+  const btnNo = document.getElementById('btnNo');
+  let noW, noH;
+  function placeNoRandomly() {
+    noW = btnNo.offsetWidth;
+    noH = btnNo.offsetHeight;
+    const pad = 20;
+    btnNo.style.left = rand(pad, window.innerWidth  - noW - pad) + 'px';
+    btnNo.style.top  = rand(pad, window.innerHeight - noH - pad) + 'px';
+  }
+  function rand(min, max) { return Math.floor(Math.random() * (max - min) + min); }
+  placeNoRandomly();
+
+  btnNo.addEventListener('mouseover',  placeNoRandomly);
+  btnNo.addEventListener('touchstart', (e) => { e.preventDefault(); placeNoRandomly(); }, {passive:false});
+  btnNo.addEventListener('click',      placeNoRandomly);
+
+  /* ── Page transitions ── */
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+  }
+
+  document.getElementById('btnYes').addEventListener('click', () => {
+    btnNo.style.display = 'none';
+    showPage('page2');
+  });
+
+  /* ── Confirm date & send email ── */
+  document.getElementById('btnConfirm').addEventListener('click', async () => {
+    const date = document.getElementById('dateInput').value;
+    const time = document.getElementById('timeInput').value;
+    const status = document.getElementById('status');
+
+    if (!date || !time) {
+      status.textContent = 'Please pick a day and time first ♡';
+      return;
+    }
+
+    status.textContent = 'Sending…';
+    document.getElementById('btnConfirm').disabled = true;
+
+    try {
+      const res = await fetch('/api/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date, time }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        const d = new Date(`${date}T${time}`);
+        document.getElementById('confirmDisplay').textContent =
+          d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) +
+          ' at ' +
+          d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+        showPage('page3');
+      } else {
+        status.textContent = data.error || 'Something went wrong — try again?';
+        document.getElementById('btnConfirm').disabled = false;
+      }
+    } catch {
+      status.textContent = 'Network error — are you connected?';
+      document.getElementById('btnConfirm').disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
